@@ -39,16 +39,14 @@ char processSection(int x, int y) {
 			sum += (unsigned int) section.at<uchar>(i, j);
 		}
 	}
-	double val = sum / static_cast<double>(section_x * section_y);
+	double val = (sum / static_cast<double>(section_x * section_y)) / 255.0f;
 
-	if (val >= 191.25f) {
-		res = HIGH;
-	} else if (val >= 127.5f) {
-		res = MEDIUM;
-	} else if (val >= 63.75f) {
-		res = LOW;
-	} else if (val >= 20.0f) {
-		res = STAR;
+	if (val > 0.6f) {
+		res = 65 + ((val - 0.6f) * 62.5f);
+	} else if (val >= 0.3f) {
+		res = 97 + ((val - 0.3f) * 83.3f);
+	} else {
+		res = 32 + (val * 50);
 	}
 	return res;
 }
