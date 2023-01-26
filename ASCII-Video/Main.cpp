@@ -1,7 +1,12 @@
-#include <iostream>
+#include <signal.h>
+#include <chrono>
 #include "Buffer.h"
 
-HANDLE outHandle;
+bool stop = false;
+
+void stp_handler(int sig) {
+	stop = true;
+}
 
 int main(int argc, char **argv) {
 	if (argc != 2) {
@@ -11,11 +16,13 @@ int main(int argc, char **argv) {
 
 	string filename(argv[1]);
 	outHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+	signal(SIGINT, stp_handler);
 	Buffer buffer(filename, 64);
-	
+
 	do {
-		waitKey(buffer.getDelay() - 10);
-	} while (buffer.isOpen() && buffer.write());
+		auto start = chrono::high_resolution_clock::now();
+		while ((chrono::high_resolution_clock::now() - start) / chrono::milliseconds(1) < buffer.getDelay()) {};
+	} while (!stop && buffer.write());
 	buffer.stop();
 
 	return 0;

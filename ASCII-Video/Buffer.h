@@ -5,6 +5,7 @@
 #include <iostream>
 #include <Windows.h>
 #include <opencv2/opencv.hpp>
+#include <thread>
 
 using namespace std;
 using namespace cv;
@@ -14,14 +15,14 @@ extern HANDLE outHandle;
 class Buffer {
 private:
 	struct SharedFrame {
-		bool ready;
 		wstring frame;
+		bool final;
+		bool ready;
 
-		SharedFrame(bool state, const wstring& frame);
+		SharedFrame(const wstring& frame);
 	};
 
 	string filename;
-	bool loading;
 	int delay, section_x, section_y;
 	size_t DIM_X, DIM_Y;
 	vector<SharedFrame> buf;
@@ -40,5 +41,4 @@ public:
 	void stop();
 
 	int getDelay() const { return this->delay; }
-	bool isOpen() const { return this->video.isOpened(); }
 };

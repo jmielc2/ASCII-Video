@@ -1,5 +1,4 @@
 #include "Buffer.h"
-#include <thread>
 
 #define NONE ' '
 #define STAR '.'
@@ -7,7 +6,12 @@
 #define MEDIUM '='
 #define HIGH '#'
 
-Buffer::SharedFrame::SharedFrame(const bool state, const wstring& frame) : ready(state), frame(frame) { return; }
+HANDLE outHandle;
+
+Buffer::SharedFrame::SharedFrame(const wstring& frame) : frame(frame) {
+	this->final = false;
+	this->ready = false;
+}
 
 Buffer::Buffer(const string& filename, int size) : filename(filename) {
 	if (size > 128) {
@@ -38,12 +42,14 @@ Buffer::Buffer(const string& filename, int size) : filename(filename) {
 
 	{  // Actually Create the Buffer and Strings
 		size_t length = (this->DIM_X * this->DIM_Y) + this->DIM_Y;
-		this->buf = vector<SharedFrame>(size, Buffer::SharedFrame(false, wstring(length, NONE)));
-		for (int i = 0; i < size; i++) {
-			for (int j = 0; j < DIM_Y; j++) {
-				buf[i].frame[(j * (DIM_X + 1)) + DIM_X] = '\n';
-			}
+		wstring temp(length, NONE);
+		for (int j = 0; j < DIM_Y; j++) {
+			temp[(j * (DIM_X + 1)) + DIM_X] = '\n';
 		}
+		for (int i = 0; i < size; i++) {
+			this->buf.push_back(Buffer::SharedFrame(temp));
+		}
+		
 	}
 
 	// Check Pixel Format
@@ -94,31 +100,34 @@ char Buffer::processSection(const int x, const int y) {
 void Buffer::frameLoader() {
 	int curFrame = 0;
 	while (this->video.read(this->frame)) {
-		while (this->video.isOpened() && this->buf[curFrame].ready) {}
-		for (int i = 0; i < DIM_Y; i++) {
-			for (int j = 0; j < DIM_X; j++) {
-				this->buf[curFrame].frame[(i * (DIM_X + 1)) + j] = processSection(j, i);
+		while (this->video.isOpened() && this->buf[curFrame].ready) {
+			Sleep(this->delay);
+		}
+		for (int i = 0; i < this->DIM_Y; i++) {
+			for (int j = 0; j < this->DIM_X; j++) {
+				this->buf[curFrame].frame[(i * (this->DIM_X + 1)) + j] = processSection(j, i);
 			}
 		}
-		buf[curFrame].ready = true;
+		this->buf[curFrame].ready = true;
 		curFrame = (curFrame + 1 == (int)this->buf.size()) ? 0 : curFrame + 1;
 	}
-	if (this->video.isOpened()) {
-		this->video.release();
-	}
+	curFrame = (curFrame == 0) ? (int)(this->buf.size() - 1) : curFrame - 1;
+	this->buf[curFrame].final = true;
 }
 
 bool Buffer::write() {
-	static int bufNum = 0;
-	while (!this->buf[bufNum].ready && this->video.isOpened()) {}
-	if (this->video.isOpened()) {
-		puts("\x1b[H");
-		WriteConsole(outHandle, this->buf[bufNum].frame.c_str(), this->buf[bufNum].frame.size(), 0, 0);
-		this->buf[bufNum].ready = false;
-		bufNum = (bufNum + 1 == this->buf.size()) ? 0 : bufNum + 1;
-		return true;
+	static int curFrame = 0;
+	while (!this->buf[curFrame].ready) {};
+#ifndef _DEBUG
+	puts("\x1b[H");
+	WriteConsole(outHandle, this->buf[curFrame].frame.c_str(), (DWORD)this->buf[curFrame].frame.size(), 0, 0);
+#endif
+	if (this->buf[curFrame].final) {
+		return false;
 	}
-	return false;
+	this->buf[curFrame].ready = false;
+	curFrame = (curFrame + 1 == this->buf.size()) ? 0 : curFrame + 1;
+	return true;
 }
 
 void Buffer::stop() {
