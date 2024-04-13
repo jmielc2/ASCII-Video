@@ -6,6 +6,7 @@
 #include <Windows.h>
 #include <opencv2/opencv.hpp>
 #include <thread>
+#include <atomic>
 
 using namespace std;
 using namespace cv;
@@ -16,8 +17,8 @@ class Buffer {
 private:
 	struct SharedFrame {
 		wstring frame;
-		bool final;
-		bool ready;
+	    std::atomic<bool> final;
+		std::atomic<bool> ready;
 
 		SharedFrame(const wstring& frame);
 	};
@@ -25,7 +26,7 @@ private:
 	string filename;
 	int delay, section_x, section_y;
 	size_t DIM_X, DIM_Y;
-	vector<SharedFrame> buf;
+	vector<SharedFrame*> buf;
 	VideoCapture video;
 	Mat frame;
 	thread loader;
@@ -35,10 +36,10 @@ private:
 
 public:
 	Buffer(const string &filename, int size = 16);
-	~Buffer() {};
+	~Buffer();
 
 	bool write();
 	void stop();
 
-	int getDelay() const { return this->delay; }
+	inline int getDelay() const { return this->delay; }
 };

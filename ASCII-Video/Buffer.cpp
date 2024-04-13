@@ -8,9 +8,8 @@
 
 HANDLE outHandle;
 
-Buffer::SharedFrame::SharedFrame(const wstring& frame) : frame(frame) {
-	this->final = false;
-	this->ready = false;
+Buffer::SharedFrame::SharedFrame(const wstring& frame) : frame(frame), final(false), ready(false) {
+	return;
 }
 
 Buffer::Buffer(const string& filename, int size) : filename(filename) {
@@ -47,7 +46,7 @@ Buffer::Buffer(const string& filename, int size) : filename(filename) {
 			temp[(j * (DIM_X + 1)) + DIM_X] = '\n';
 		}
 		for (int i = 0; i < size; i++) {
-			this->buf.push_back(Buffer::SharedFrame(temp));
+			this->buf.push_back(new Buffer::SharedFrame(temp));
 		}
 		
 	}
@@ -64,6 +63,12 @@ Buffer::Buffer(const string& filename, int size) : filename(filename) {
 
 	// Start Loading Frames
 	this->loader = thread(&Buffer::frameLoader, this);
+}
+
+Buffer::~Buffer() {
+	for (Buffer::SharedFrame* frame : this->buf) {
+		delete frame;
+	}
 }
 
 char Buffer::processSection(const int x, const int y) {
@@ -100,32 +105,32 @@ char Buffer::processSection(const int x, const int y) {
 void Buffer::frameLoader() {
 	int curFrame = 0;
 	while (this->video.read(this->frame)) {
-		while (this->video.isOpened() && this->buf[curFrame].ready) {
+		while (this->video.isOpened() && this->buf[curFrame]->ready.load()) {
 			Sleep(this->delay);
 		}
 		for (int i = 0; i < this->DIM_Y; i++) {
 			for (int j = 0; j < this->DIM_X; j++) {
-				this->buf[curFrame].frame[(i * (this->DIM_X + 1)) + j] = processSection(j, i);
+				this->buf[curFrame]->frame[(i * (this->DIM_X + 1)) + j] = processSection(j, i);
 			}
 		}
-		this->buf[curFrame].ready = true;
+		this->buf[curFrame]->ready.store(true);
 		curFrame = (curFrame + 1 == (int)this->buf.size()) ? 0 : curFrame + 1;
 	}
 	curFrame = (curFrame == 0) ? (int)(this->buf.size() - 1) : curFrame - 1;
-	this->buf[curFrame].final = true;
+	this->buf[curFrame]->final.store(true);
 }
 
 bool Buffer::write() {
 	static int curFrame = 0;
-	while (!this->buf[curFrame].ready) {};
+	while (!this->buf[curFrame]->ready.load()) {};
 #ifndef _DEBUG
 	puts("\x1b[H");
-	WriteConsole(outHandle, this->buf[curFrame].frame.c_str(), (DWORD)this->buf[curFrame].frame.size(), 0, 0);
+	WriteConsole(outHandle, this->buf[curFrame]->frame.c_str(), (DWORD)this->buf[curFrame]->frame.size(), 0, 0);
 #endif
-	if (this->buf[curFrame].final) {
+	if (this->buf[curFrame]->final.load()) {
 		return false;
 	}
-	this->buf[curFrame].ready = false;
+	this->buf[curFrame]->ready.store(false);
 	curFrame = (curFrame + 1 == this->buf.size()) ? 0 : curFrame + 1;
 	return true;
 }

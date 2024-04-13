@@ -79,13 +79,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\OpenCV\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\OpenCV\x64\vc16\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Libraries\OpenCV\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Libraries\OpenCV\x64\vc16\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\OpenCV\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\OpenCV\x64\vc16\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Libraries\OpenCV\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Libraries\OpenCV\x64\vc16\lib;$(LibraryPath)</LibraryPath>
     <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -122,11 +122,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opencv_aruco470d.lib;opencv_barcode470d.lib;opencv_bgsegm470d.lib;opencv_bioinspired470d.lib;opencv_calib3d470d.lib;opencv_ccalib470d.lib;opencv_core470d.lib;opencv_datasets470d.lib;opencv_dnn470d.lib;opencv_dnn_objdetect470d.lib;opencv_dnn_superres470d.lib;opencv_dpm470d.lib;opencv_face470d.lib;opencv_features2d470d.lib;opencv_flann470d.lib;opencv_fuzzy470d.lib;opencv_gapi470d.lib;opencv_hfs470d.lib;opencv_highgui470d.lib;opencv_imgcodecs470d.lib;opencv_imgproc470d.lib;opencv_img_hash470d.lib;opencv_intensity_transform470d.lib;opencv_line_descriptor470d.lib;opencv_mcc470d.lib;opencv_ml470d.lib;opencv_objdetect470d.lib;opencv_optflow470d.lib;opencv_phase_unwrapping470d.lib;opencv_photo470d.lib;opencv_plot470d.lib;opencv_quality470d.lib;opencv_rapid470d.lib;opencv_reg470d.lib;opencv_rgbd470d.lib;opencv_saliency470d.lib;opencv_shape470d.lib;opencv_stereo470d.lib;opencv_stitching470d.lib;opencv_structured_light470d.lib;opencv_superres470d.lib;opencv_surface_matching470d.lib;opencv_text470d.lib;opencv_tracking470d.lib;opencv_video470d.lib;opencv_videoio470d.lib;opencv_videostab470d.lib;opencv_wechat_qrcode470d.lib;opencv_xfeatures2d470d.lib;opencv_ximgproc470d.lib;opencv_xobjdetect470d.lib;opencv_xphoto470d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_calib3d490d.lib;opencv_core490d.lib;opencv_dnn490d.lib;opencv_features2d490d.lib;opencv_flann490d.lib;opencv_gapi490d.lib;opencv_highgui490d.lib;opencv_imgcodecs490d.lib;opencv_imgproc490d.lib;opencv_ml490d.lib;opencv_objdetect490d.lib;opencv_photo490d.lib;opencv_stitching490d.lib;opencv_video490d.lib;opencv_videoio490d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
       <Command>"assets/Bad Apple!!.mp4
@@ -141,13 +142,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opencv_aruco470.lib;opencv_barcode470.lib;opencv_bgsegm470.lib;opencv_bioinspired470.lib;opencv_calib3d470.lib;opencv_ccalib470.lib;opencv_core470.lib;opencv_datasets470.lib;opencv_dnn470.lib;opencv_dnn_objdetect470.lib;opencv_dnn_superres470.lib;opencv_dpm470.lib;opencv_face470.lib;opencv_features2d470.lib;opencv_flann470.lib;opencv_fuzzy470.lib;opencv_gapi470.lib;opencv_hfs470.lib;opencv_highgui470.lib;opencv_imgcodecs470.lib;opencv_imgproc470.lib;opencv_img_hash470.lib;opencv_intensity_transform470.lib;opencv_line_descriptor470.lib;opencv_mcc470.lib;opencv_ml470.lib;opencv_objdetect470.lib;opencv_optflow470.lib;opencv_phase_unwrapping470.lib;opencv_photo470.lib;opencv_plot470.lib;opencv_quality470.lib;opencv_rapid470.lib;opencv_reg470.lib;opencv_rgbd470.lib;opencv_saliency470.lib;opencv_shape470.lib;opencv_stereo470.lib;opencv_stitching470.lib;opencv_structured_light470.lib;opencv_superres470.lib;opencv_surface_matching470.lib;opencv_text470.lib;opencv_tracking470.lib;opencv_video470.lib;opencv_videoio470.lib;opencv_videostab470.lib;opencv_wechat_qrcode470.lib;opencv_xfeatures2d470.lib;opencv_ximgproc470.lib;opencv_xobjdetect470.lib;opencv_xphoto470.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_calib3d490.lib;opencv_core490.lib;opencv_dnn490.lib;opencv_features2d490.lib;opencv_flann490.lib;opencv_gapi490.lib;opencv_highgui490.lib;opencv_imgcodecs490.lib;opencv_imgproc490.lib;opencv_ml490.lib;opencv_objdetect490.lib;opencv_photo490.lib;opencv_stitching490.lib;opencv_video490.lib;opencv_videoio490.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
       <Command>"assets/Bad Apple!!.mp4
