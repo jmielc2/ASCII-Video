@@ -105,8 +105,10 @@ char Buffer::processSection(const int x, const int y) {
 void Buffer::frameLoader() {
 	int curFrame = 0;
 	while (this->video.read(this->frame)) {
-		while (this->video.isOpened() && this->buf[curFrame]->ready.load()) {
-			Sleep(this->delay);
+		bool state = this->buf[curFrame]->ready.load();
+		while (this->video.isOpened() && state) {
+			this->buf[curFrame]->ready.wait(state);
+			state = this->buf[curFrame]->ready.load();
 		}
 		for (int i = 0; i < this->DIM_Y; i++) {
 			for (int j = 0; j < this->DIM_X; j++) {
@@ -114,6 +116,7 @@ void Buffer::frameLoader() {
 			}
 		}
 		this->buf[curFrame]->ready.store(true);
+		this->buf[curFrame]->ready.notify_all();
 		curFrame = (curFrame + 1 == (int)this->buf.size()) ? 0 : curFrame + 1;
 	}
 	curFrame = (curFrame == 0) ? (int)(this->buf.size() - 1) : curFrame - 1;
@@ -122,7 +125,11 @@ void Buffer::frameLoader() {
 
 bool Buffer::write() {
 	static int curFrame = 0;
-	while (!this->buf[curFrame]->ready.load()) {};
+	bool state = this->buf[curFrame]->ready.load();
+	while (!state) {
+		this->buf[curFrame]->ready.wait(state);
+		state = this->buf[curFrame]->ready.load();
+	};
 #ifndef _DEBUG
 	puts("\x1b[H");
 	WriteConsole(outHandle, this->buf[curFrame]->frame.c_str(), (DWORD)this->buf[curFrame]->frame.size(), 0, 0);
@@ -131,6 +138,7 @@ bool Buffer::write() {
 		return false;
 	}
 	this->buf[curFrame]->ready.store(false);
+	this->buf[curFrame]->ready.notify_all();
 	curFrame = (curFrame + 1 == this->buf.size()) ? 0 : curFrame + 1;
 	return true;
 }
