@@ -23,8 +23,9 @@ private:
 		SharedFrame(const wstring& frame);
 	};
 
+	bool opened;
 	string filename;
-	int delay, section_x, section_y;
+	int delay, section_x, section_y, curFrame;
 	size_t DIM_X, DIM_Y;
 	vector<SharedFrame*> buf;
 	VideoCapture video;
@@ -40,6 +41,6 @@ public:
 
 	bool write();
 	void stop();
-
+	inline bool isOpen() const { return this->opened; }
 	inline int getDelay() const { return this->delay; }
 };

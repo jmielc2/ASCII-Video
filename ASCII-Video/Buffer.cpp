@@ -1,4 +1,5 @@
 #include "Buffer.h"
+#include <iostream>
 
 #define NONE ' '
 #define STAR '.'
@@ -12,8 +13,8 @@ Buffer::SharedFrame::SharedFrame(const wstring& frame) : frame(frame), final(fal
 	return;
 }
 
-Buffer::Buffer(const string& filename, int size) : filename(filename) {
-	if (size > 128) {
+Buffer::Buffer(const string& filename, int size) : filename(filename), curFrame(0), opened(false) {
+	if (size > 256) {
 		std::cout << "Error: buffer size " << size << " is too big." << std::endl;
 		return;
 	}
@@ -59,6 +60,7 @@ Buffer::Buffer(const string& filename, int size) : filename(filename) {
 		this->video.release();
 		return;
 	}
+	this->opened = true;
 	this->video.set(CAP_PROP_POS_FRAMES, 0);
 
 	// Start Loading Frames
@@ -110,6 +112,9 @@ void Buffer::frameLoader() {
 			this->buf[curFrame]->ready.wait(state);
 			state = this->buf[curFrame]->ready.load();
 		}
+		if (!this->video.isOpened()) {
+			return;
+		}
 		for (int i = 0; i < this->DIM_Y; i++) {
 			for (int j = 0; j < this->DIM_X; j++) {
 				this->buf[curFrame]->frame[(i * (this->DIM_X + 1)) + j] = processSection(j, i);
@@ -124,7 +129,6 @@ void Buffer::frameLoader() {
 }
 
 bool Buffer::write() {
-	static int curFrame = 0;
 	bool state = this->buf[curFrame]->ready.load();
 	while (!state) {
 		this->buf[curFrame]->ready.wait(state);
@@ -147,6 +151,8 @@ void Buffer::stop() {
 	if (this->video.isOpened()) {
 		this->video.release();
 	}
+	this->buf[curFrame]->ready.store(false);
+	this->buf[curFrame]->ready.notify_all();
 	this->loader.join();
 	return;
 }

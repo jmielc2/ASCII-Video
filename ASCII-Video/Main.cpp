@@ -17,7 +17,10 @@ int main(int argc, char **argv) {
 	string filename(argv[1]);
 	outHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 	signal(SIGINT, stp_handler);
-	Buffer buffer(filename, 64);
+	Buffer buffer(filename, 256);
+	if (!buffer.isOpen()) {
+		return 0;
+	}
 
 	do {
 		auto start = chrono::high_resolution_clock::now();
